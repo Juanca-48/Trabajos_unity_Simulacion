@@ -147,7 +147,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      GRID-OVERLAY-01_0: -5188313368914289720
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
