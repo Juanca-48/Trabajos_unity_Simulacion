@@ -903,8 +903,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   masa: 1
   radio: 0.25
-  tiempoAutodestruccionPrimeraColision: 3
-  tiempoAutodestruccionSinColisiones: 5
+  tiempoMaximoVida: 5
+  tiempoMaximoPostColision: 3
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

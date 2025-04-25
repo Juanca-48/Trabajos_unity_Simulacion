@@ -5,14 +5,12 @@ public class Proyectil : MonoBehaviour, IObjetoColisionable
 {
     public float masa = 1f;
     public float radio = 0.25f;
-    public float tiempoAutodestruccionPrimeraColision = 3f;
-    public float tiempoAutodestruccionSinColisiones = 5f;
+    public float tiempoMaximoVida = 5f;
+    public float tiempoMaximoPostColision = 3f;
 
     private Vector2 velocidadInicial;
     private int contadorColisiones = 0;
-    private bool temporizadorColisionActivo = false;
-    private Coroutine temporizadorColisionCoroutine;
-    private Coroutine temporizadorInicialCoroutine;
+    private Coroutine temporizadorActivo;
 
     public void Inicializar(Vector2 vel)
     {
@@ -20,86 +18,58 @@ public class Proyectil : MonoBehaviour, IObjetoColisionable
         SistemaFisica.instancia.RegistrarObjeto(gameObject, masa, radio, velocidadInicial);
         Debug.Log($"[Proyectil] Inicializado con vel={vel}");
         
-        // Iniciar temporizador de vida máxima sin colisiones
-        temporizadorInicialCoroutine = StartCoroutine(TemporizadorSinColisiones());
+        // Iniciar temporizador de vida máxima
+        IniciarTemporizador(tiempoMaximoVida, "Tiempo máximo de vida agotado");
     }
 
     public void OnColision(GameObject otro)
     {
-        // Cancelar el temporizador inicial ya que ocurrió una colisión
-        if (temporizadorInicialCoroutine != null)
-        {
-            StopCoroutine(temporizadorInicialCoroutine);
-            temporizadorInicialCoroutine = null;
-        }
-
-        // Boundary collision
-        if (otro == null)
-        {
-            contadorColisiones++;
-            Debug.Log($"[Proyectil] Rebote límite #{contadorColisiones}");
-        }
-        else if (otro.CompareTag("Bola"))
+        // Colisión con una bola
+        if (otro != null && otro.CompareTag("Bola"))
         {
             Debug.Log("[Proyectil] Colisión con Bola: destruido");
             Destroy(gameObject);
             return;
         }
-        else
-        {
-            contadorColisiones++;
-            Debug.Log($"[Proyectil] Rebote objeto #{contadorColisiones} con {otro.name}");
-        }
 
-        // Después de la primera colisión, iniciar temporizador de autodestrucción
-        if (contadorColisiones == 1)
-        {
-            IniciarTemporizadorPostColision();
-        }
-        // Reiniciar temporizador en colisiones subsecuentes
-        else if (temporizadorColisionActivo)
-        {
-            ReiniciarTemporizador();
-        }
+        // Incrementar contador de colisiones
+        contadorColisiones++;
+        
+        // Registrar el tipo de colisión
+        string tipoColision = otro == null ? "límite" : otro.name;
+        Debug.Log($"[Proyectil] Rebote #{contadorColisiones} con {tipoColision}");
 
+        // Si es segunda colisión, destruir
         if (contadorColisiones >= 2)
         {
             Debug.Log("[Proyectil] Segundo rebote: destruido");
             Destroy(gameObject);
+            return;
         }
-    }
 
-    private void IniciarTemporizadorPostColision()
-    {
-        if (!temporizadorColisionActivo)
+        // Si es primera colisión, reiniciar temporizador
+        if (contadorColisiones == 1)
         {
-            temporizadorColisionActivo = true;
-            temporizadorColisionCoroutine = StartCoroutine(TemporizadorPostColision());
-            Debug.Log($"[Proyectil] Temporizador post-colisión iniciado ({tiempoAutodestruccionPrimeraColision} segundos)");
+            IniciarTemporizador(tiempoMaximoPostColision, "Tiempo agotado después de primera colisión");
         }
     }
 
-    private void ReiniciarTemporizador()
+    private void IniciarTemporizador(float tiempo, string mensaje)
     {
-        if (temporizadorColisionCoroutine != null)
+        // Cancelar temporizador anterior si existe
+        if (temporizadorActivo != null)
         {
-            StopCoroutine(temporizadorColisionCoroutine);
-            temporizadorColisionCoroutine = StartCoroutine(TemporizadorPostColision());
-            Debug.Log("[Proyectil] Temporizador post-colisión reiniciado");
+            StopCoroutine(temporizadorActivo);
         }
+        
+        // Iniciar nuevo temporizador
+        temporizadorActivo = StartCoroutine(Temporizador(tiempo, mensaje));
     }
 
-    private IEnumerator TemporizadorPostColision()
+    private IEnumerator Temporizador(float tiempo, string mensaje)
     {
-        yield return new WaitForSeconds(tiempoAutodestruccionPrimeraColision);
-        Debug.Log("[Proyectil] Tiempo agotado sin colisiones después de primer rebote: destruido");
-        Destroy(gameObject);
-    }
-
-    private IEnumerator TemporizadorSinColisiones()
-    {
-        yield return new WaitForSeconds(tiempoAutodestruccionSinColisiones);
-        Debug.Log("[Proyectil] Tiempo máximo de vida sin colisiones agotado: destruido");
+        yield return new WaitForSeconds(tiempo);
+        Debug.Log($"[Proyectil] {mensaje}: destruido");
         Destroy(gameObject);
     }
 
