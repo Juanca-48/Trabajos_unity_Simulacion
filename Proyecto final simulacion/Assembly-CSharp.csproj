@@ -70,6 +70,7 @@
     <Compile Include="Assets\Scripts\Proyectil.cs" />
     <Compile Include="Assets\Scripts\SistemaFisica.cs" />
     <Compile Include="Assets\Scripts\IObjetoColisionable.cs" />
+    <Compile Include="Assets\Scripts\Obstaculos.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">

@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Bola
   - Proyectil
+  - Obstaculo
   layers:
   - Default
   - TransparentFX
