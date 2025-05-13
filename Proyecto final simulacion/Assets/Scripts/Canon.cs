@@ -1,4 +1,5 @@
 using UnityEngine;
+using System;
 
 public class ControlResortera : MonoBehaviour
 {
@@ -15,6 +16,9 @@ public class ControlResortera : MonoBehaviour
 
     public GameObject prefabProyectil;
     public Transform puntoDisparo;
+
+    // Evento para notificar cuando se dispara un proyectil
+    public event Action<GameObject> OnProyectilDisparado;
 
     void Start()
     {
@@ -39,6 +43,18 @@ public class ControlResortera : MonoBehaviour
 
     void ManejarControlesResortera()
     {
+        // Verificar si se puede disparar según el sistema de turnos
+        if (TurnosAdmin.instancia != null && !TurnosAdmin.instancia.PuedeDisparar())
+        {
+            // No está activo el turno de este jugador, no permitir disparos
+            if (estaArrastrando)
+            {
+                estaArrastrando = false;
+                if (mostrarTrayectoria) lineaVisualizacion.enabled = false;
+            }
+            return;
+        }
+
         if (Input.GetMouseButtonDown(0) && EstaClicSobreObjeto())
         {
             estaArrastrando = true;
@@ -66,7 +82,7 @@ public class ControlResortera : MonoBehaviour
         if (Input.GetMouseButtonUp(0) && estaArrastrando)
         {
             Vector2 direccionDisparo = ObtenerDireccionDisparo();
-            DispararProyectil(direccionDisparo);
+            GameObject proyectil = DispararProyectil(direccionDisparo);
             estaArrastrando = false;
             if (mostrarTrayectoria) lineaVisualizacion.enabled = false;
         }
@@ -86,19 +102,24 @@ public class ControlResortera : MonoBehaviour
         return direccion * factorFuerza;
     }
 
-private void DispararProyectil(Vector2 direccion)
-{
-    GameObject proyectilGO = Instantiate(prefabProyectil, puntoDisparo.position, Quaternion.identity);
-    var pComp = proyectilGO.GetComponent<Proyectil>();
-    if (pComp != null) 
+    private GameObject DispararProyectil(Vector2 direccion)
     {
-        pComp.Inicializar(direccion);
+        GameObject proyectilGO = Instantiate(prefabProyectil, puntoDisparo.position, Quaternion.identity);
+        var pComp = proyectilGO.GetComponent<Proyectil>();
+        if (pComp != null) 
+        {
+            pComp.Inicializar(direccion);
+            
+            // Invocar el evento para notificar que se disparó un proyectil
+            OnProyectilDisparado?.Invoke(proyectilGO);
+        }
+        else 
+        {
+            Debug.LogError("El prefab no tiene el script Proyectil");
+        }
+        
+        return proyectilGO;
     }
-    else 
-    {
-        Debug.LogError("El prefab no tiene el script Proyectil");
-    }
-}
 
     void OnDrawGizmosSelected()
     {
