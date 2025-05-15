@@ -1,6 +1,5 @@
 using UnityEngine;
 
-
 public class Bola : MonoBehaviour, IObjetoColisionable
 {
     public float masa = 1f;
@@ -12,21 +11,20 @@ public class Bola : MonoBehaviour, IObjetoColisionable
         SistemaFisica.instancia.RegistrarObjeto(gameObject, masa, radio);
     }
 
-
-public void OnColision(GameObject otro)
-{
-    if (otro == null)
+    public void OnColision(GameObject otro)
     {
-        // Colisión con los límites del área
-        Debug.Log("[Bola] Colisión con límite detectada");
-        return;
-    }
+        if (otro == null)
+        {
+            // Colisión con los límites del área
+            Debug.Log("[Bola] Colisión con límite detectada");
+            return;
+        }
 
-    if (otro.CompareTag("Proyectil"))
-    {
-        Debug.Log("[Bola] Golpeada por proyectil");
+        if (otro.CompareTag("Proyectil"))
+        {
+            Debug.Log("[Bola] Golpeada por proyectil");
+        }
     }
-}
 
     void OnDestroy()
     {
