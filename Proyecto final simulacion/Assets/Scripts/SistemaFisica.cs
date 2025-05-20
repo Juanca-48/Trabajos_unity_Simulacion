@@ -11,6 +11,8 @@ public class SistemaFisica : MonoBehaviour
         public Vector2 velocidad;
         public float masa;
         public float radio;
+        public bool afectadoPorGravedad = false;
+        public float coefArrastre = 0.2f;  // Coeficiente de arrastre para el objeto
     }
 
     private Dictionary<GameObject, DatosObjeto> objetosFisicos = new Dictionary<GameObject, DatosObjeto>();
@@ -20,6 +22,7 @@ public class SistemaFisica : MonoBehaviour
     public float coefRestitucion = 0.8f;
     public float coefFriccion = 0.2f;
     public float velocidadMinima = 0.1f;
+    public float gravedad = 9.81f;  // Valor de la gravedad
 
     public float limiteIzquierdo = -8f;
     public float limiteDerecho = 8f;
@@ -75,6 +78,27 @@ public class SistemaFisica : MonoBehaviour
         }
     }
 
+    // Método para activar la gravedad en un objeto
+    public void ActivarGravedad(GameObject objeto, bool activar, float coefArrastre = 0.2f)
+    {
+        if (objetosFisicos.TryGetValue(objeto, out DatosObjeto datos))
+        {
+            datos.afectadoPorGravedad = activar;
+            datos.coefArrastre = coefArrastre;
+            Debug.Log($"Gravedad {(activar ? "activada" : "desactivada")} para {objeto.name}");
+        }
+    }
+
+    // Método para comprobar si un objeto está afectado por la gravedad
+    public bool EstaBajoGravedad(GameObject objeto)
+    {
+        if (objetosFisicos.TryGetValue(objeto, out DatosObjeto datos))
+        {
+            return datos.afectadoPorGravedad;
+        }
+        return false;
+    }
+
     private void ActualizarFisica()
     {
         for (int i = objetosActivos.Count - 1; i >= 0; i--)
@@ -89,10 +113,27 @@ public class SistemaFisica : MonoBehaviour
         foreach (var obj in objetosActivos)
         {
             var datos = objetosFisicos[obj];
+            
+            // Aplicar gravedad y resistencia del aire si está activa
+            if (datos.afectadoPorGravedad)
+            {
+                float ax = -(datos.coefArrastre / datos.masa) * datos.velocidad.x;
+                float ay = -gravedad - (datos.coefArrastre / datos.masa) * datos.velocidad.y;
+                
+                datos.velocidad.x += ax * Time.fixedDeltaTime;
+                datos.velocidad.y += ay * Time.fixedDeltaTime;
+            }
+            else
+            {
+                // Comportamiento normal - aplicar fricción
+                datos.velocidad *= coefFriccion;
+            }
+            
+            // Actualizar posición
             datos.posicion += datos.velocidad * Time.fixedDeltaTime;
-            datos.velocidad *= coefFriccion;
-
-            if (datos.velocidad.magnitude < velocidadMinima)
+            
+            // Comprobar velocidad mínima solo para objetos no afectados por gravedad
+            if (!datos.afectadoPorGravedad && datos.velocidad.magnitude < velocidadMinima)
                 datos.velocidad = Vector2.zero;
 
             bool rebotado = ComprobarColisionesConLimites(ref datos.posicion, ref datos.velocidad, obj);

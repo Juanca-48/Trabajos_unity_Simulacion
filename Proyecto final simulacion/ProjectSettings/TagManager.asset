@@ -9,6 +9,7 @@ TagManager:
   - Obstaculo
   - Jugador_1
   - Jugador_2
+  - Aumento
   layers:
   - Default
   - TransparentFX
