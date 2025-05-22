@@ -6,6 +6,7 @@ public class Obstaculos : MonoBehaviour, IObjetoColisionable
     {
         Normal,
         SuperRebote
+        Amortiguador,
     }
     
     [Header("Propiedades")]
@@ -14,6 +15,8 @@ public class Obstaculos : MonoBehaviour, IObjetoColisionable
     
     // Factor de rebote para obstáculos con súper rebote
     private const float SuperRebote = 5.0f;
+
+    private const float Amortiguador = 0.5f;
     
     // Variable estática para manejar todos los obstáculos
     private static bool sistemaInicializado = false;
