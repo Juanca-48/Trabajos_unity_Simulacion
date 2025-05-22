@@ -155,6 +155,10 @@ MonoBehaviour:
   mostrarTrayectoria: 1
   lineaVisualizacion: {fileID: 0}
   offsetRotacion: 0
+  materialLinea: {fileID: 0}
+  colorLinea: {r: 1, g: 0, b: 0, a: 1}
+  anchoLinea: 1
+  sortingOrder: 10
   prefabProyectil: {fileID: 1355190931}
   puntoDisparo: {fileID: 0}
 --- !u!61 &70868957
@@ -460,7 +464,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -5616, y: -3010}
+  m_AnchoredPosition: {x: -5616, y: 610}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &241853968
@@ -514,7 +518,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 4500, y: 3000}
+  m_AnchoredPosition: {x: 8628, y: 5143}
   m_SizeDelta: {x: 200, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &412008353
@@ -764,7 +768,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 5
+  orthographic size: 5.5
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -1115,6 +1119,10 @@ MonoBehaviour:
   mostrarTrayectoria: 1
   lineaVisualizacion: {fileID: 0}
   offsetRotacion: 0
+  materialLinea: {fileID: 0}
+  colorLinea: {r: 1, g: 0, b: 0, a: 1}
+  anchoLinea: 0.1
+  sortingOrder: 10
   prefabProyectil: {fileID: 1355190931}
   puntoDisparo: {fileID: 0}
 --- !u!1 &874196556 stripped
@@ -1237,7 +1245,7 @@ RectTransform:
   - {fileID: 2008487047}
   - {fileID: 1354678894}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0.069}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
@@ -1481,7 +1489,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 3051, y: 2950}
+  m_AnchoredPosition: {x: 7141, y: 5115}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1354678895
@@ -1799,8 +1807,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -4500, y: 3000}
-  m_SizeDelta: {x: 200, y: 200}
+  m_AnchoredPosition: {x: -6434, y: 5143}
+  m_SizeDelta: {x: 198, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1905348359
 MonoBehaviour:
@@ -1874,7 +1882,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -613, y: 3000}
+  m_AnchoredPosition: {x: -613, y: 5274}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1967097776
@@ -2111,7 +2119,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -3330, y: 2950}
+  m_AnchoredPosition: {x: -7863, y: 5129}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &2131971181
@@ -2270,9 +2278,29 @@ PrefabInstance:
       value: Balista J1
       objectReference: {fileID: 0}
     - target: {fileID: 7235057059857622545, guid: f83b13dbc9fb2754bad0c4023f93c898, type: 3}
+      propertyPath: anchoLinea
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7235057059857622545, guid: f83b13dbc9fb2754bad0c4023f93c898, type: 3}
+      propertyPath: maxPuntosLinea
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 7235057059857622545, guid: f83b13dbc9fb2754bad0c4023f93c898, type: 3}
+      propertyPath: espacioSegmento
+      value: 0.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 7235057059857622545, guid: f83b13dbc9fb2754bad0c4023f93c898, type: 3}
       propertyPath: prefabProyectil
       value: 
       objectReference: {fileID: 1355190931}
+    - target: {fileID: 7235057059857622545, guid: f83b13dbc9fb2754bad0c4023f93c898, type: 3}
+      propertyPath: longitudSegmento
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7235057059857622545, guid: f83b13dbc9fb2754bad0c4023f93c898, type: 3}
+      propertyPath: usarLineaPunteada
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -2489,7 +2517,7 @@ SceneRoots:
   - {fileID: 2131971183}
   - {fileID: 493583593}
   - {fileID: 1331457100}
-  - {fileID: 2974836007898969628}
   - {fileID: 1202273983}
   - {fileID: 7953988283715314548}
   - {fileID: 1550803574}
+  - {fileID: 2974836007898969628}

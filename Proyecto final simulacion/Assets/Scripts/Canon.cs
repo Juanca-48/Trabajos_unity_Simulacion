@@ -14,6 +14,12 @@ public class ControlResortera : MonoBehaviour
     public LineRenderer lineaVisualizacion;
     public float offsetRotacion = 0.0f;
 
+    [Header("Configuración visual de la línea")]
+    public Material materialLinea; // Material personalizado para la línea
+    public Color colorLinea = Color.red;
+    public float anchoLinea = 1f;
+    public int sortingOrder = 10; // Orden de renderizado alto para que aparezca encima
+
     public GameObject prefabProyectil;
     public Transform puntoDisparo;
 
@@ -24,12 +30,51 @@ public class ControlResortera : MonoBehaviour
     {
         cam = Camera.main;
         if (puntoDisparo == null) puntoDisparo = transform;
-        if (mostrarTrayectoria && lineaVisualizacion == null)
+        ConfigurarLineRenderer();
+    }
+
+    void ConfigurarLineRenderer()
+    {
+        if (mostrarTrayectoria)
         {
-            lineaVisualizacion = gameObject.AddComponent<LineRenderer>();
-            lineaVisualizacion.startWidth = 0.1f;
-            lineaVisualizacion.endWidth = 0.1f;
+            if (lineaVisualizacion == null)
+            {
+                lineaVisualizacion = gameObject.AddComponent<LineRenderer>();
+            }
+
+            // Configuración básica del LineRenderer
+            lineaVisualizacion.startWidth = anchoLinea;
+            lineaVisualizacion.endWidth = anchoLinea;
             lineaVisualizacion.positionCount = 2;
+            lineaVisualizacion.useWorldSpace = true;
+            
+            // Configurar material y color
+            if (materialLinea != null)
+            {
+                lineaVisualizacion.material = materialLinea;
+            }
+            else
+            {
+                // Crear un material básico si no se asigna uno
+                Material mat = new Material(Shader.Find("Sprites/Default"));
+                mat.color = colorLinea;
+                lineaVisualizacion.material = mat;
+            }
+            
+            // CONFIGURACIÓN CLAVE PARA QUE APAREZCA ENCIMA
+            lineaVisualizacion.sortingLayerName = "Default"; // O el layer que uses
+            lineaVisualizacion.sortingOrder = sortingOrder; // Número alto para renderizar encima
+            
+            // Para juegos 2D, asegurar que esté en el plano correcto
+            lineaVisualizacion.alignment = LineAlignment.TransformZ;
+            
+            // Configuraciones adicionales para mejor calidad visual
+            lineaVisualizacion.numCornerVertices = 4;
+            lineaVisualizacion.numCapVertices = 4;
+            lineaVisualizacion.generateLightingData = false;
+            lineaVisualizacion.receiveShadows = false;
+            lineaVisualizacion.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            
             lineaVisualizacion.enabled = false;
         }
     }
@@ -50,7 +95,8 @@ public class ControlResortera : MonoBehaviour
             if (estaArrastrando)
             {
                 estaArrastrando = false;
-                if (mostrarTrayectoria) lineaVisualizacion.enabled = false;
+                if (mostrarTrayectoria && lineaVisualizacion != null) 
+                    lineaVisualizacion.enabled = false;
             }
             return;
         }
@@ -59,7 +105,8 @@ public class ControlResortera : MonoBehaviour
         {
             estaArrastrando = true;
             posicionInicial = transform.position;
-            if (mostrarTrayectoria) lineaVisualizacion.enabled = true;
+            if (mostrarTrayectoria && lineaVisualizacion != null) 
+                lineaVisualizacion.enabled = true;
         }
 
         if (estaArrastrando)
@@ -69,12 +116,10 @@ public class ControlResortera : MonoBehaviour
             {
                 float ang = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg + offsetRotacion;
                 transform.rotation = Quaternion.Euler(0,0,ang);
-                if (mostrarTrayectoria)
+                
+                if (mostrarTrayectoria && lineaVisualizacion != null)
                 {
-                    float dist = Mathf.Min(dir.magnitude, maxDistanciaArrastre);
-                    Vector2 dl = dir.normalized * dist;
-                    lineaVisualizacion.SetPosition(0, puntoDisparo.position);
-                    lineaVisualizacion.SetPosition(1, puntoDisparo.position + (Vector3)dl);
+                    ActualizarVisualizacionLinea(dir);
                 }
             }
         }
@@ -84,8 +129,26 @@ public class ControlResortera : MonoBehaviour
             Vector2 direccionDisparo = ObtenerDireccionDisparo();
             GameObject proyectil = DispararProyectil(direccionDisparo);
             estaArrastrando = false;
-            if (mostrarTrayectoria) lineaVisualizacion.enabled = false;
+            if (mostrarTrayectoria && lineaVisualizacion != null) 
+                lineaVisualizacion.enabled = false;
         }
+    }
+
+    private void ActualizarVisualizacionLinea(Vector2 direccion)
+    {
+        float dist = Mathf.Min(direccion.magnitude, maxDistanciaArrastre);
+        Vector2 dl = direccion.normalized * dist;
+        
+        // Asegurar que las posiciones estén en el plano Z correcto
+        Vector3 puntoInicio = puntoDisparo.position;
+        Vector3 puntoFin = puntoDisparo.position + (Vector3)dl;
+        
+        // Para juegos 2D, mantener Z consistente
+        puntoInicio.z = transform.position.z - 0.1f; // Ligeramente hacia adelante
+        puntoFin.z = transform.position.z - 0.1f;
+        
+        lineaVisualizacion.SetPosition(0, puntoInicio);
+        lineaVisualizacion.SetPosition(1, puntoFin);
     }
 
     private bool EstaClicSobreObjeto()
@@ -119,6 +182,26 @@ public class ControlResortera : MonoBehaviour
         }
         
         return proyectilGO;
+    }
+
+    // Método público para cambiar el sorting order en runtime si es necesario
+    public void CambiarOrdenRenderizado(int nuevoOrden)
+    {
+        sortingOrder = nuevoOrden;
+        if (lineaVisualizacion != null)
+        {
+            lineaVisualizacion.sortingOrder = sortingOrder;
+        }
+    }
+
+    // Método para cambiar el color de la línea
+    public void CambiarColorLinea(Color nuevoColor)
+    {
+        colorLinea = nuevoColor;
+        if (lineaVisualizacion != null && lineaVisualizacion.material != null)
+        {
+            lineaVisualizacion.material.color = nuevoColor;
+        }
     }
 
     void OnDrawGizmosSelected()
