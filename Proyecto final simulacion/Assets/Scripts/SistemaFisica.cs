@@ -167,35 +167,47 @@ public class SistemaFisica : MonoBehaviour
     }
 
     private void ComprobarColisionesEntreObjetos()
+{
+    for (int i = 0; i < objetosActivos.Count; i++)
     {
-        for (int i = 0; i < objetosActivos.Count; i++)
+        for (int j = i + 1; j < objetosActivos.Count; j++)
         {
-            for (int j = i + 1; j < objetosActivos.Count; j++)
-            {
-                GameObject obj1 = objetosActivos[i];
-                GameObject obj2 = objetosActivos[j];
+            GameObject obj1 = objetosActivos[i];
+            GameObject obj2 = objetosActivos[j];
 
-                if (obj1 == null || obj2 == null) continue;
+            if (obj1 == null || obj2 == null) continue;
 
-                var datos1 = objetosFisicos[obj1];
-                var datos2 = objetosFisicos[obj2];
+            var datos1 = objetosFisicos[obj1];
+            var datos2 = objetosFisicos[obj2];
 
-                float distancia = Vector2.Distance(datos1.posicion, datos2.posicion);
-                float distanciaColision = datos1.radio + datos2.radio;
+            float distancia = Vector2.Distance(datos1.posicion, datos2.posicion);
+            float distanciaColision = datos1.radio + datos2.radio;
 
-                if (distancia <= distanciaColision)
-                {
-                    Colision(obj1, obj2);
+            if (distancia <= distanciaColision)
+{
+    Colision(obj1, obj2);
 
-                    var colisionable1 = obj1.GetComponent<MonoBehaviour>() as IObjetoColisionable;
-                    var colisionable2 = obj2.GetComponent<MonoBehaviour>() as IObjetoColisionable;
+    var colisionable1 = obj1 != null ? obj1.GetComponent<MonoBehaviour>() as IObjetoColisionable : null;
+    var colisionable2 = obj2 != null ? obj2.GetComponent<MonoBehaviour>() as IObjetoColisionable : null;
 
-                    colisionable1?.OnColision(obj2);
-                    colisionable2?.OnColision(obj1);
-                }
-            }
+    colisionable1?.OnColision(obj2);
+    colisionable2?.OnColision(obj1);
+
+    // Destruir el objeto si es un power-up y colisiona con un proyectil
+    if (obj1 != null && obj1.CompareTag("Aumento") && obj2 != null && obj2.CompareTag("Proyectil"))
+    {
+        Destroy(obj1);
+    }
+    else if (obj2 != null && obj2.CompareTag("Aumento") && obj1 != null && obj1.CompareTag("Proyectil"))
+    {
+        Destroy(obj2);
+    }
+}
+
         }
     }
+}
+
 
     private void Colision(GameObject obj1, GameObject obj2)
     {
