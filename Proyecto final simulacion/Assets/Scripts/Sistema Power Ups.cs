@@ -33,10 +33,38 @@ public class SistemaPowerUps : MonoBehaviour
     public bool spawnAlIniciar = true;
     [Tooltip("Máximo número de power-ups activos en el mundo")]
     public int maxPowerUpsEnMundo = 3;
+    public class TipoPowerUp
+    {
+        [Tooltip("Nombre del tipo de power-up")]
+        public string nombre;
+        [Tooltip("Probabilidad de spawn (peso relativo)")]
+        [Range(0f, 100f)]
+        public float probabilidad = 33.3f;
+        [Tooltip("Duración del efecto en segundos")]
+        public float duracion = 5f;
+        [Tooltip("Color del power-up")]
+        public Color color = Color.white;
+        [Tooltip("Descripción del efecto")]
+        public string descripcion;
+    }
+
+    [Tooltip("Tipos de power-ups disponibles con sus configuraciones")]
+    public TipoPowerUp[] tiposPowerUp = new TipoPowerUp[]
+    {
+        new TipoPowerUp { nombre = "MasaExtra", probabilidad = 33.3f, duracion = 5f, color = Color.red, descripcion = "Duplica la masa del proyectil" },
+        new TipoPowerUp { nombre = "RadioExtra", probabilidad = 33.3f, duracion = 5f, color = Color.yellow, descripcion = "Aumenta el radio del proyectil" },
+        new TipoPowerUp { nombre = "Gravedad", probabilidad = 33.4f, duracion = 5f, color = Color.blue, descripcion = "Activa gravedad en el proyectil" }
+    };
 
     [Header("Configuración de Tags")]
     [Tooltip("Tag que deben tener los objetos para ser considerados power-ups")]
     public string tagPowerUp = "Aumento";
+
+    [Header("Configuración de Física")]
+    [Tooltip("Masa de los power-ups para el sistema de física")]
+    public float masaPowerUp = 1f;
+    [Tooltip("Radio de los power-ups para el sistema de física")]
+    public float radioPowerUp = 0.5f;
     #endregion
 
     #region Variables Privadas
@@ -139,6 +167,39 @@ public class SistemaPowerUps : MonoBehaviour
             tagPowerUp = "Untagged";
         }
 
+        // Validar tipos de power-up
+        if (tiposPowerUp == null || tiposPowerUp.Length == 0)
+        {
+            Debug.LogError("[PowerUp] No hay tipos de power-up configurados");
+            configValida = false;
+        }
+        else
+        {
+            float sumaProb = 0f;
+            foreach (var tipo in tiposPowerUp)
+            {
+                if (string.IsNullOrEmpty(tipo.nombre))
+                {
+                    Debug.LogError("[PowerUp] Hay un tipo de power-up sin nombre");
+                    configValida = false;
+                }
+                sumaProb += tipo.probabilidad;
+            }
+            
+            if (Mathf.Approximately(sumaProb, 0f))
+            {
+                Debug.LogError("[PowerUp] La suma de probabilidades de los power-ups no puede ser 0");
+                configValida = false;
+            }
+        }
+
+        // Validar que el sistema de física esté disponible
+        if (SistemaFisica.instancia == null)
+        {
+            Debug.LogError("[PowerUp] SistemaFisica.instancia no está disponible");
+            configValida = false;
+        }
+
         return configValida;
     }
 
@@ -176,7 +237,49 @@ public class SistemaPowerUps : MonoBehaviour
     }
 
     /// <summary>
-    /// Crea un nuevo power up en el mundo de juego con validación mejorada
+    /// Selecciona un tipo de power-up aleatorio basado en las probabilidades configuradas
+    /// </summary>
+    private TipoPowerUp SeleccionarTipoAleatorio()
+    {
+        if (tiposPowerUp == null || tiposPowerUp.Length == 0)
+        {
+            Debug.LogError("[PowerUp] No hay tipos de power-up configurados");
+            return null;
+        }
+
+        // Calcular la suma total de probabilidades
+        float sumaTotal = 0f;
+        foreach (var tipo in tiposPowerUp)
+        {
+            sumaTotal += tipo.probabilidad;
+        }
+
+        if (sumaTotal <= 0f)
+        {
+            Debug.LogWarning("[PowerUp] Suma de probabilidades es 0, seleccionando tipo aleatorio uniforme");
+            return tiposPowerUp[UnityEngine.Random.Range(0, tiposPowerUp.Length)];
+        }
+
+        // Generar número aleatorio
+        float valorAleatorio = UnityEngine.Random.Range(0f, sumaTotal);
+        
+        // Seleccionar tipo basado en probabilidades
+        float acumulado = 0f;
+        foreach (var tipo in tiposPowerUp)
+        {
+            acumulado += tipo.probabilidad;
+            if (valorAleatorio <= acumulado)
+            {
+                return tipo;
+            }
+        }
+
+        // Fallback - devolver el último tipo
+        return tiposPowerUp[tiposPowerUp.Length - 1];
+    }
+
+    /// <summary>
+    /// Crea un nuevo power up en el mundo de juego con tipo aleatorio
     /// </summary>
     public void SpawnPowerUp()
     {
@@ -196,6 +299,14 @@ public class SistemaPowerUps : MonoBehaviour
         if (puntosPosiblesSpawn == null || puntosPosiblesSpawn.Length == 0)
         {
             Debug.LogWarning("[PowerUp] No hay puntos de spawn configurados");
+            return;
+        }
+
+        // Seleccionar tipo de power-up aleatorio
+        TipoPowerUp tipoSeleccionado = SeleccionarTipoAleatorio();
+        if (tipoSeleccionado == null)
+        {
+            Debug.LogError("[PowerUp] No se pudo seleccionar un tipo de power-up");
             return;
         }
 
@@ -256,10 +367,10 @@ public class SistemaPowerUps : MonoBehaviour
                 return;
             }
             
-            // Configurar el power up
-            ConfigurarPowerUp(powerUp);
+            // Configurar el power up con el tipo seleccionado
+            ConfigurarPowerUp(powerUp, tipoSeleccionado);
             
-            Debug.Log($"[PowerUp] Spawneado exitosamente: {powerUp.name} en {posicionSpawn}. Total en mundo: {powerUpsEnMundo.Count}");
+            Debug.Log($"[PowerUp] Spawneado exitosamente: {powerUp.name} (Tipo: {tipoSeleccionado.nombre}) en {posicionSpawn}. Total en mundo: {powerUpsEnMundo.Count}");
         }
         catch (System.Exception e)
         {
@@ -267,7 +378,7 @@ public class SistemaPowerUps : MonoBehaviour
         }
     }
 
-    private void ConfigurarPowerUp(GameObject powerUp)
+    private void ConfigurarPowerUp(GameObject powerUp, TipoPowerUp tipo)
     {
         // Asegurarse de que tenga el tag correcto
         powerUp.tag = tagPowerUp;
@@ -277,6 +388,29 @@ public class SistemaPowerUps : MonoBehaviour
         if (powerUpItem == null)
         {
             powerUpItem = powerUp.AddComponent<PowerUpItem>();
+        }
+
+        // Configurar el tipo y duración aleatorios
+        powerUpItem.tipoPowerUp = tipo.nombre;
+        powerUpItem.duracion = tipo.duracion;
+        powerUpItem.masa = masaPowerUp;
+        powerUpItem.radio = radioPowerUp;
+
+        // Aplicar color visual si tiene SpriteRenderer
+        SpriteRenderer spriteRenderer = powerUp.GetComponent<SpriteRenderer>();
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.color = tipo.color;
+        }
+
+        // Cambiar el nombre para identificar el tipo
+        powerUp.name = $"{powerUp.name}_{tipo.nombre}";
+
+        // Eliminar cualquier collider 2D existente ya que usaremos el sistema de física personalizado
+        Collider2D[] colliders = powerUp.GetComponents<Collider2D>();
+        foreach (var collider in colliders)
+        {
+            DestroyImmediate(collider);
         }
         
         // Registrar en la lista de power ups en el mundo
@@ -293,6 +427,52 @@ public class SistemaPowerUps : MonoBehaviour
                 powerUpsEnMundo.Remove(powerUp);
             }
         };
+
+        Debug.Log($"[PowerUp] Power-up configurado: {powerUp.name} - Tipo: {tipo.nombre}, Duración: {tipo.duracion}s, Color: {tipo.color}");
+    }
+
+    /// <summary>
+    /// Obtiene información sobre un tipo de power-up específico
+    /// </summary>
+    public TipoPowerUp ObtenerTipoPowerUp(string nombreTipo)
+    {
+        if (tiposPowerUp == null) return null;
+
+        foreach (var tipo in tiposPowerUp)
+        {
+            if (tipo.nombre == nombreTipo)
+                return tipo;
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// Fuerza el spawn de un power-up de un tipo específico (útil para testing)
+    /// </summary>
+    public void SpawnPowerUpTipo(string nombreTipo)
+    {
+        TipoPowerUp tipo = ObtenerTipoPowerUp(nombreTipo);
+        if (tipo == null)
+        {
+            Debug.LogError($"[PowerUp] Tipo '{nombreTipo}' no encontrado");
+            return;
+        }
+
+        // Usar la misma lógica de spawn pero con tipo forzado
+        if (prefabsPowerUp == null || prefabsPowerUp.Length == 0 || 
+            puntosPosiblesSpawn == null || puntosPosiblesSpawn.Length == 0)
+        {
+            Debug.LogError("[PowerUp] Configuración inválida para spawn forzado");
+            return;
+        }
+
+        GameObject prefab = prefabsPowerUp[0]; // Usar el primer prefab disponible
+        Transform punto = puntosPosiblesSpawn[UnityEngine.Random.Range(0, puntosPosiblesSpawn.Length)];
+        
+        GameObject powerUp = Instantiate(prefab, punto.position, Quaternion.identity);
+        ConfigurarPowerUp(powerUp, tipo);
+        
+        Debug.Log($"[PowerUp] Spawn forzado de tipo '{nombreTipo}' completado");
     }
 
     private void ActualizarPowerUpsActivos()
@@ -380,14 +560,24 @@ public class SistemaPowerUps : MonoBehaviour
     }
 }
 
-[RequireComponent(typeof(Collider2D))]
-public class PowerUpItem : MonoBehaviour
+/// <summary>
+/// Componente PowerUpItem integrado con el sistema de física personalizado
+/// </summary>
+public class PowerUpItem : MonoBehaviour, IObjetoColisionable
 {
-    [Tooltip("Tipo de power up")]
+    [Header("Configuración del Power-Up")]
+    [Tooltip("Tipo de power up (se asigna automáticamente al spawn)")]
     public string tipoPowerUp = "PowerUp";
     
-    [Tooltip("Duración del efecto en segundos")]
+    [Tooltip("Duración del efecto en segundos (se asigna automáticamente al spawn)")]
     public float duracion = 5f;
+    
+    [Header("Configuración de Física")]
+    [Tooltip("Masa del power-up en el sistema de física")]
+    public float masa = 1f;
+    
+    [Tooltip("Radio del power-up en el sistema de física")]
+    public float radio = 0.5f;
     
     [Tooltip("¿Ya fue recogido? (para evitar múltiples activaciones)")]
     private bool yaRecogido = false;
@@ -396,12 +586,17 @@ public class PowerUpItem : MonoBehaviour
     
     private void Start()
     {
-        Collider2D col = GetComponent<Collider2D>();
-        if (col != null)
+        // Validar que el sistema de física esté disponible
+        if (SistemaFisica.instancia == null)
         {
-            col.isTrigger = true;
+            Debug.LogError($"[PowerUp] SistemaFisica.instancia no está disponible para {gameObject.name}");
+            return;
         }
+
+        // Registrar este power-up en el sistema de física personalizado
+        SistemaFisica.instancia.RegistrarObjeto(gameObject, masa, radio);
         
+        // Configurar tag si el sistema de power-ups está disponible
         if (SistemaPowerUps.instancia != null)
         {
             if (tag != SistemaPowerUps.instancia.tagPowerUp)
@@ -414,27 +609,47 @@ public class PowerUpItem : MonoBehaviour
         {
             Debug.LogWarning($"[PowerUp] SistemaPowerUps.instancia es null en Start() para {gameObject.name}");
         }
+
+        Debug.Log($"[PowerUp] {gameObject.name} registrado en el sistema de física con masa {masa} y radio {radio}. Tipo: {tipoPowerUp}, Duración: {duracion}s");
     }
     
-private void OnTriggerEnter2D(Collider2D collision)
-{
-    // Verifica si ya fue recogido (para evitar múltiples activaciones)
-    if (yaRecogido) return;
-
-    // Detecta si el objeto colisionante es un proyectil
-    if (collision.CompareTag("Proyectil"))
+    private void OnDestroy()
     {
-        yaRecogido = true; // Marca que ya ha sido recogido
-        Debug.Log($"[PowerUp] Colisión detectada con proyectil: {collision.gameObject.name}");
+        // Invocar el evento OnDestruido y eliminar del sistema de física
+        OnDestruido?.Invoke();
+        
+        if (SistemaFisica.instancia != null)
+        {
+            SistemaFisica.instancia.EliminarObjeto(gameObject);
+        }
 
-        // Registra la colisión si es necesario (por ejemplo, para estadísticas)
-        RegistrarColision();
-
-        // Destruye el power-up sin afectar al proyectil
-        Destroy(gameObject);
+        Debug.Log($"[PowerUp] {gameObject.name} eliminado del sistema de física");
     }
-}
 
+    /// <summary>
+    /// Método que se ejecuta cuando ocurre una colisión dentro del sistema de física personalizado
+    /// </summary>
+    /// <param name="otroObjeto">El objeto con el que colisionó este power-up</param>
+    public void OnColision(GameObject otroObjeto)
+    {
+        if (yaRecogido || otroObjeto == null) return;
+
+        // Verificar si el objeto que colisionó es un proyectil
+        if (otroObjeto.CompareTag("Proyectil"))
+        {
+            yaRecogido = true;  // Marcar el power-up como "recogido"
+            Debug.Log($"[PowerUp] Colisión detectada entre {gameObject.name} (Tipo: {tipoPowerUp}) y proyectil: {otroObjeto.name}");
+
+            // Activar el power-up en el proyectil
+            ActivarPowerUp(otroObjeto);
+
+            // Registrar la colisión (opcional, por ejemplo, estadísticas)
+            RegistrarColision();
+
+            // Destruir el power-up
+            Destroy(gameObject);
+        }
+    }
     
     private void ActivarPowerUp(GameObject proyectil)
     {
@@ -457,7 +672,7 @@ private void OnTriggerEnter2D(Collider2D collision)
                         {
                             obj.name = $"{obj.name}_OrigMasa_{proy.masa}";
                             proy.masa *= 2f * SistemaPowerUps.instancia.coeficienteDebug;
-                            Debug.Log($"[PowerUp] Masa aumentada a {proy.masa}");
+                            Debug.Log($"[PowerUp] Masa aumentada a {proy.masa} (Duración: {duracion}s)");
                         }
                     },
                     (obj) => {
@@ -494,7 +709,7 @@ private void OnTriggerEnter2D(Collider2D collision)
                             obj.name = $"{obj.name}_OrigRadio_{radioOriginal}";
                             proy.radio *= 1.5f * SistemaPowerUps.instancia.coeficienteDebug;
                             obj.transform.localScale *= 1.5f;
-                            Debug.Log($"[PowerUp] Radio aumentado a {proy.radio}");
+                            Debug.Log($"[PowerUp] Radio aumentado a {proy.radio} (Duración: {duracion}s)");
                         }
                     },
                     (obj) => {
@@ -539,7 +754,7 @@ private void OnTriggerEnter2D(Collider2D collision)
                             {
                                 SistemaFisica.instancia.ActivarGravedad(obj, true, 0.2f * SistemaPowerUps.instancia.coeficienteDebug);
                             }
-                            Debug.Log($"[PowerUp] Gravedad activada para {obj.name}");
+                            Debug.Log($"[PowerUp] Gravedad activada para {obj.name} (Duración: {duracion}s)");
                         }
                     },
                     (obj) => {
@@ -575,6 +790,14 @@ private void OnTriggerEnter2D(Collider2D collision)
         }
     }
     
+    /// <summary>
+    /// Método opcional para registrar estadísticas o eventos de colisión
+    /// </summary>
+    private void RegistrarColision()
+    {
+        Debug.Log($"[PowerUp] Power-up {gameObject.name} (Tipo: {tipoPowerUp}) destruido tras colisión con proyectil");
+    }
+    
     private string ColorToString(Color color)
     {
         return $"{color.r}_{color.g}_{color.b}_{color.a}";
@@ -595,40 +818,120 @@ private void OnTriggerEnter2D(Collider2D collision)
     }
 }
 
+/// <summary>
+/// Componente para configurar sprites como power-ups usando el sistema de física personalizado
+/// </summary>
 [RequireComponent(typeof(SpriteRenderer))]
-[RequireComponent(typeof(BoxCollider2D))]
 public class PowerUpSprite : MonoBehaviour
 {
-    [Tooltip("Tipo de power up")]
-    public string tipoPowerUp = "MasaExtra";
+    [Header("Configuración del Power-Up")]
+    [Tooltip("Tipo de power up (se asignará automáticamente si está vacío)")]
+    public string tipoPowerUp = "";
 
-    [Tooltip("Duración del efecto en segundos")]
-    public float duracion = 5f;
+    [Tooltip("Duración del efecto en segundos (se asignará automáticamente si es 0)")]
+    public float duracion = 0f;
 
-    [Tooltip("¿El collider debe ser trigger?")]
-    public bool esTrigger = true;
+    [Header("Configuración de Física")]
+    [Tooltip("Masa del power-up en el sistema de física")]
+    public float masa = 1f;
+    
+    [Tooltip("Radio del power-up en el sistema de física")]
+    public float radio = 0.5f;
 
     void Start()
     {
+        // Si no tiene tipo o duración configurados, asignar aleatorios
+        if (string.IsNullOrEmpty(tipoPowerUp) || duracion <= 0f)
+        {
+            AsignarTipoAleatorio();
+        }
+
+        // Configurar tag
         if (SistemaPowerUps.instancia != null)
         {
             tag = SistemaPowerUps.instancia.tagPowerUp;
         }
 
-        BoxCollider2D collider = GetComponent<BoxCollider2D>();
-        if (collider != null)
+        // Eliminar cualquier collider existente
+        Collider2D[] colliders = GetComponents<Collider2D>();
+        foreach (var collider in colliders)
         {
-            collider.isTrigger = esTrigger;
+            DestroyImmediate(collider);
         }
 
+        // Agregar o configurar el componente PowerUpItem
         PowerUpItem item = gameObject.GetComponent<PowerUpItem>();
         if (item == null)
         {
             item = gameObject.AddComponent<PowerUpItem>();
         }
+        
         item.tipoPowerUp = tipoPowerUp;
         item.duracion = duracion;
+        item.masa = masa;
+        item.radio = radio;
 
-        Debug.Log($"[PowerUp] Sprite configurado como power up: {gameObject.name}, tipo: {tipoPowerUp}, duración: {duracion}s");
+        Debug.Log($"[PowerUp] Sprite configurado como power up: {gameObject.name}, tipo: {tipoPowerUp}, duración: {duracion}s, masa: {masa}, radio: {radio}");
+    }
+
+    /// <summary>
+    /// Asigna un tipo aleatorio basado en la configuración del SistemaPowerUps
+    /// </summary>
+    private void AsignarTipoAleatorio()
+    {
+        if (SistemaPowerUps.instancia == null || 
+            SistemaPowerUps.instancia.tiposPowerUp == null || 
+            SistemaPowerUps.instancia.tiposPowerUp.Length == 0)
+        {
+            // Valores por defecto si no hay sistema configurado
+            tipoPowerUp = "MasaExtra";
+            duracion = 5f;
+            Debug.LogWarning($"[PowerUp] No se encontró configuración de tipos, usando valores por defecto para {gameObject.name}");
+            return;
+        }
+
+        // Seleccionar tipo aleatorio usando la misma lógica que el sistema
+        var tipos = SistemaPowerUps.instancia.tiposPowerUp;
+        
+        // Calcular probabilidades
+        float sumaTotal = 0f;
+        foreach (var tipo in tipos)
+        {
+            sumaTotal += tipo.probabilidad;
+        }
+
+        if (sumaTotal <= 0f)
+        {
+            // Selección uniforme si no hay probabilidades válidas
+            var tipoSeleccionado = tipos[UnityEngine.Random.Range(0, tipos.Length)];
+            tipoPowerUp = tipoSeleccionado.nombre;
+            duracion = tipoSeleccionado.duracion;
+        }
+        else
+        {
+            // Selección basada en probabilidades
+            float valorAleatorio = UnityEngine.Random.Range(0f, sumaTotal);
+            float acumulado = 0f;
+            
+            foreach (var tipo in tipos)
+            {
+                acumulado += tipo.probabilidad;
+                if (valorAleatorio <= acumulado)
+                {
+                    tipoPowerUp = tipo.nombre;
+                    duracion = tipo.duracion;
+                    
+                    // Aplicar color visual
+                    SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
+                    if (spriteRenderer != null)
+                    {
+                        spriteRenderer.color = tipo.color;
+                    }
+                    break;
+                }
+            }
+        }
+
+        Debug.Log($"[PowerUp] Tipo aleatorio asignado a {gameObject.name}: {tipoPowerUp} (Duración: {duracion}s)");
     }
 }

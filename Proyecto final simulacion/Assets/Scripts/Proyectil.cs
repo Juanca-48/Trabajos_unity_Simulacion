@@ -40,7 +40,7 @@ public class Proyectil : MonoBehaviour, IObjetoColisionable
         Debug.Log($"[Proyectil] Rebote #{contadorColisiones} con {tipoColision}");
 
         // Si es segunda colisión, destruir
-        if (contadorColisiones >= 2)
+        if (contadorColisiones >= 8)
         {
             Debug.Log("[Proyectil] Segundo rebote: destruido");
             Destroy(gameObject);

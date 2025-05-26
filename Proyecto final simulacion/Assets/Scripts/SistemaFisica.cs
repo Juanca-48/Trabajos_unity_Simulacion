@@ -167,47 +167,127 @@ public class SistemaFisica : MonoBehaviour
     }
 
     private void ComprobarColisionesEntreObjetos()
-{
-    for (int i = 0; i < objetosActivos.Count; i++)
     {
-        for (int j = i + 1; j < objetosActivos.Count; j++)
+        for (int i = 0; i < objetosActivos.Count; i++)
         {
-            GameObject obj1 = objetosActivos[i];
-            GameObject obj2 = objetosActivos[j];
+            for (int j = i + 1; j < objetosActivos.Count; j++)
+            {
+                GameObject obj1 = objetosActivos[i];
+                GameObject obj2 = objetosActivos[j];
 
-            if (obj1 == null || obj2 == null) continue;
+                if (obj1 == null || obj2 == null) continue;
 
-            var datos1 = objetosFisicos[obj1];
-            var datos2 = objetosFisicos[obj2];
+                var datos1 = objetosFisicos[obj1];
+                var datos2 = objetosFisicos[obj2];
 
-            float distancia = Vector2.Distance(datos1.posicion, datos2.posicion);
-            float distanciaColision = datos1.radio + datos2.radio;
+                float distancia = Vector2.Distance(datos1.posicion, datos2.posicion);
+                float distanciaColision = datos1.radio + datos2.radio;
 
-            if (distancia <= distanciaColision)
-{
-    Colision(obj1, obj2);
+                if (distancia <= distanciaColision)
+                {
+                    // Verificar si es una colisión power-up con proyectil
+                    bool esPowerUpVsProyectil = EsColisionPowerUpConProyectil(obj1, obj2);
+                    
+                    if (esPowerUpVsProyectil)
+                    {
+                        // Manejar colisión especial power-up vs proyectil
+                        ManejarColisionPowerUpProyectil(obj1, obj2);
+                    }
+                    else
+                    {
+                        // Colisión normal entre otros objetos
+                        Colision(obj1, obj2);
+                        
+                        var colisionable1 = obj1 != null ? obj1.GetComponent<MonoBehaviour>() as IObjetoColisionable : null;
+                        var colisionable2 = obj2 != null ? obj2.GetComponent<MonoBehaviour>() as IObjetoColisionable : null;
 
-    var colisionable1 = obj1 != null ? obj1.GetComponent<MonoBehaviour>() as IObjetoColisionable : null;
-    var colisionable2 = obj2 != null ? obj2.GetComponent<MonoBehaviour>() as IObjetoColisionable : null;
-
-    colisionable1?.OnColision(obj2);
-    colisionable2?.OnColision(obj1);
-
-    // Destruir el objeto si es un power-up y colisiona con un proyectil
-    if (obj1 != null && obj1.CompareTag("Aumento") && obj2 != null && obj2.CompareTag("Proyectil"))
-    {
-        Destroy(obj1);
-    }
-    else if (obj2 != null && obj2.CompareTag("Aumento") && obj1 != null && obj1.CompareTag("Proyectil"))
-    {
-        Destroy(obj2);
-    }
-}
-
+                        colisionable1?.OnColision(obj2);
+                        colisionable2?.OnColision(obj1);
+                    }
+                }
+            }
         }
     }
-}
 
+    /// <summary>
+    /// Verifica si la colisión es entre un power-up y un proyectil
+    /// </summary>
+    private bool EsColisionPowerUpConProyectil(GameObject obj1, GameObject obj2)
+    {
+        return (EsPowerUp(obj1) && EsProyectil(obj2)) || 
+               (EsPowerUp(obj2) && EsProyectil(obj1));
+    }
+
+    /// <summary>
+    /// Verifica si un objeto es un power-up
+    /// </summary>
+    private bool EsPowerUp(GameObject obj)
+    {
+        // Verificar por tag
+        if (obj.CompareTag("Aumento")) return true;
+        
+        // Verificar por componente
+        if (obj.GetComponent<PowerUpItem>() != null) return true;
+        if (obj.GetComponent<PowerUpItem1>() != null) return true;
+        if (obj.GetComponent<PowerUpSprite>() != null) return true;
+        
+        return false;
+    }
+
+    /// <summary>
+    /// Verifica si un objeto es un proyectil
+    /// </summary>
+    private bool EsProyectil(GameObject obj)
+    {
+        return obj.CompareTag("Proyectil") || obj.GetComponent<Proyectil>() != null;
+    }
+
+    /// <summary>
+    /// Maneja la colisión especial entre power-up y proyectil
+    /// </summary>
+    private void ManejarColisionPowerUpProyectil(GameObject obj1, GameObject obj2)
+    {
+        GameObject powerUp = null;
+        GameObject proyectil = null;
+        
+        // Identificar cuál es el power-up y cuál es el proyectil
+        if (EsPowerUp(obj1) && EsProyectil(obj2))
+        {
+            powerUp = obj1;
+            proyectil = obj2;
+        }
+        else if (EsPowerUp(obj2) && EsProyectil(obj1))
+        {
+            powerUp = obj2;
+            proyectil = obj1;
+        }
+        
+        if (powerUp != null && proyectil != null)
+        {
+            Debug.Log($"[SistemaFisica] Colisión power-up detectada: {powerUp.name} con {proyectil.name}");
+            
+            // Guardar la velocidad original del proyectil
+            Vector2 velocidadOriginalProyectil = Vector2.zero;
+            if (objetosFisicos.TryGetValue(proyectil, out DatosObjeto datosProyectil))
+            {
+                velocidadOriginalProyectil = datosProyectil.velocidad;
+            }
+            
+            // Activar el efecto del power-up a través de la interfaz de colisión
+            var colisionablePowerUp = powerUp.GetComponent<MonoBehaviour>() as IObjetoColisionable;
+            colisionablePowerUp?.OnColision(proyectil);
+            
+            // Restaurar la velocidad original del proyectil (sin cambios por la colisión)
+            if (objetosFisicos.TryGetValue(proyectil, out DatosObjeto datosProyectilDespues))
+            {
+                datosProyectilDespues.velocidad = velocidadOriginalProyectil;
+                Debug.Log($"[SistemaFisica] Velocidad del proyectil {proyectil.name} preservada: {velocidadOriginalProyectil}");
+            }
+            
+            // El power-up se destruirá automáticamente a través de su método OnColision
+            // No necesitamos hacer Destroy(powerUp) aquí ya que se maneja en PowerUpItem.OnColision
+        }
+    }
 
     private void Colision(GameObject obj1, GameObject obj2)
     {
