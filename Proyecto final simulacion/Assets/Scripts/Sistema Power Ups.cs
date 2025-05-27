@@ -84,6 +84,13 @@ public class SistemaPowerUps : MonoBehaviour
     #region Eventos
     public event Action<string, GameObject> OnPowerUpActivado;
     public event Action<string, GameObject> OnPowerUpFinalizado;
+    [Header("Configuración de Turnos")]
+    [Tooltip("¿Spawneo basado en turnos? Si es false, usa el tiempo")]
+    public bool spawnPorTurnos = true;
+    [Tooltip("Cada cuántos turnos se spawnea un power-up")]
+    public int turnosEntreSpawns = 2;
+    private int contadorTurnos = 0;
+    private bool suscritoATurnos = false;
     #endregion
 
     private void Start()
@@ -104,14 +111,14 @@ public class SistemaPowerUps : MonoBehaviour
 
         if (powerUpsActivos == null)
             powerUpsActivos = new List<PowerUpActivo>();
-        
+
         if (powerUpsEnMundo == null)
             powerUpsEnMundo = new List<GameObject>();
 
         tiempoUltimoSpawn = Time.time;
-        
+
         Debug.Log("[PowerUp] Sistema inicializado correctamente");
-        
+
         if (spawnAlIniciar)
         {
             SpawnPowerUp();

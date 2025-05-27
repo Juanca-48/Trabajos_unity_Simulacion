@@ -11,6 +11,10 @@ public class Meta : MonoBehaviour
     public float ancho = 2f;
     public float alto = 0.5f;
     
+    // Identificación del jugador (opcional)
+    [Header("Configuración del Jugador")]
+    public string nombreJugador = "Jugador 1";
+    
     // Conteo de bolas que han cruzado la meta
     private int conteo = 0;
     
@@ -36,6 +40,10 @@ public class Meta : MonoBehaviour
     // Método llamado por el sistema de física cuando una bola cruza la meta
     public void ContabilizarBola(GameObject bola)
     {
+        // Verificar si el juego ya terminó
+        if (AdminJuego.instancia.EstaJuegoTerminado())
+            return;
+        
         if (!bolasRegistradas.Contains(bola))
         {
             // Incrementar el conteo
@@ -47,10 +55,16 @@ public class Meta : MonoBehaviour
             // Actualizar el texto del contador
             ActualizarTextoContador();
             
-            Debug.Log($"¡Gol! Conteo actual: {conteo}");
+            Debug.Log($"¡Gol para {nombreJugador}! Conteo actual: {conteo}");
             
-            // Notificar al GestorJuego
-            AdminJuego.instancia.BolaMetaAlcanzada(bola);
+            // Verificar si este jugador ganó
+            if (conteo >= AdminJuego.instancia.ObtenerGolesParaGanar())
+            {
+                Debug.Log($"¡{nombreJugador} ha ganado con {conteo} goles!");
+            }
+            
+            // Notificar al AdminJuego pasando referencia a esta meta
+            AdminJuego.instancia.BolaMetaAlcanzada(bola, this);
         }
     }
     
@@ -59,7 +73,8 @@ public class Meta : MonoBehaviour
     {
         if (textoContador != null)
         {
-            textoContador.text = $"Goles: {conteo}";
+            int golesParaGanar = AdminJuego.instancia.ObtenerGolesParaGanar();
+            textoContador.text = $"{nombreJugador}: {conteo}/{golesParaGanar}";
         }
     }
     
@@ -79,6 +94,11 @@ public class Meta : MonoBehaviour
         Vector3 centro = transform.position;
         Vector3 tamaño = new Vector3(ancho, alto, 0.1f);
         Gizmos.DrawWireCube(centro, tamaño);
+        
+        // Mostrar el nombre del jugador en el editor
+        #if UNITY_EDITOR
+        UnityEditor.Handles.Label(transform.position + Vector3.up * (alto/2 + 0.5f), nombreJugador);
+        #endif
     }
     
     // Método para obtener el conteo actual (útil para otros scripts)
@@ -93,6 +113,18 @@ public class Meta : MonoBehaviour
         conteo = 0;
         bolasRegistradas.Clear();
         ActualizarTextoContador();
-        Debug.Log("Conteo de meta reiniciado");
+        Debug.Log($"Conteo de meta de {nombreJugador} reiniciado");
+    }
+    
+    // Método para obtener el nombre del jugador
+    public string ObtenerNombreJugador()
+    {
+        return nombreJugador;
+    }
+    
+    // Método para verificar si este jugador ha ganado
+    public bool HaGanado()
+    {
+        return conteo >= AdminJuego.instancia.ObtenerGolesParaGanar();
     }
 }

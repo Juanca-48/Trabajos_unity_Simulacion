@@ -389,7 +389,7 @@ MonoBehaviour:
   limiteIzquierdo: -8
   limiteDerecho: 8
   limiteSuperior: 4.5
-  limiteInferior: -4.5
+  limiteInferior: -5
 --- !u!4 &143188590
 Transform:
   m_ObjectHideFlags: 0
@@ -769,6 +769,7 @@ MonoBehaviour:
   textoContador: {fileID: 2008487045}
   ancho: 1.5
   alto: 10
+  nombreJugador: Jugador 1
 --- !u!1 &504425489
 GameObject:
   m_ObjectHideFlags: 0
@@ -906,7 +907,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 5.5
+  orthographic size: 5
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -954,6 +955,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 889887755e55fca469546b07c98fbe8f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  tipoPowerUp: 
+  duracion: 0
 --- !u!1 &546844181
 GameObject:
   m_ObjectHideFlags: 0
@@ -1324,7 +1327,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   masa: 1
-  radio: 1
+  radio: 0.5
 --- !u!1001 &974795417
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1828,6 +1831,8 @@ MonoBehaviour:
   tagPowerUp: Aumento
   masaPowerUp: 0
   radioPowerUp: 0.5
+  spawnPorTurnos: 1
+  turnosEntreSpawns: 2
 --- !u!4 &1202273983
 Transform:
   m_ObjectHideFlags: 0
@@ -1890,6 +1895,9 @@ MonoBehaviour:
   Bola: {fileID: 874196556}
   posicionInicio: {x: 0, y: 0}
   tiempoEsperaRespawn: 1.5
+  golesParaGanar: 5
+  nombreEscenaVictoria: EscenaVictoria
+  tiempoEsperaAntesCambioEscena: 2
 --- !u!1 &1354678893
 GameObject:
   m_ObjectHideFlags: 0
@@ -2129,7 +2137,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   masa: 1
-  radio: 0.25
+  radio: 0.1
   tiempoMaximoVida: 8
   tiempoMaximoPostColision: 3
 --- !u!1 &1481645007
@@ -2392,6 +2400,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 889887755e55fca469546b07c98fbe8f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  tipoPowerUp: 
+  duracion: 0
 --- !u!1 &1870132184 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2822679966231809266, guid: 40ffa1a581b9b744ba64c430e9e307f8, type: 3}
@@ -2409,6 +2419,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 889887755e55fca469546b07c98fbe8f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  tipoPowerUp: 
+  duracion: 0
 --- !u!1 &1905348357
 GameObject:
   m_ObjectHideFlags: 0
@@ -2861,6 +2873,7 @@ MonoBehaviour:
   textoContador: {fileID: 1354678895}
   ancho: 1.5
   alto: 10
+  nombreJugador: Jugador 1
 --- !u!1001 &2612997606223300190
 PrefabInstance:
   m_ObjectHideFlags: 0
