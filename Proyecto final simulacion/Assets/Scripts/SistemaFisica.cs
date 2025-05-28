@@ -253,6 +253,12 @@ public class SistemaFisica : MonoBehaviour
 
                 if (obj1 == null || obj2 == null) continue;
 
+                // NUEVA VERIFICACIÓN: Evitar colisiones entre Bola y PowerUp
+                if (EsColisionBolaConPowerUp(obj1, obj2))
+                {
+                    continue; // Saltarse esta colisión
+                }
+
                 var datos1 = objetosFisicos[obj1];
                 var datos2 = objetosFisicos[obj2];
 
@@ -304,6 +310,19 @@ public class SistemaFisica : MonoBehaviour
                 }
             }
         }
+    }
+
+    // NUEVO MÉTODO: Verificar si es una colisión entre Bola y PowerUp
+    private bool EsColisionBolaConPowerUp(GameObject obj1, GameObject obj2)
+    {
+        return (EsBola(obj1) && EsPowerUp(obj2)) || 
+               (EsBola(obj2) && EsPowerUp(obj1));
+    }
+
+    // NUEVO MÉTODO: Verificar si un objeto es una Bola
+    private bool EsBola(GameObject obj)
+    {
+        return obj.GetComponent<Bola>() != null;
     }
 
     private bool ColisionCirculoVsCirculo(DatosObjeto datos1, DatosObjeto datos2, out Vector2 puntoContacto, out Vector2 normalColision)

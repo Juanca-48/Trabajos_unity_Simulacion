@@ -147,7 +147,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      fondo 3 juego simulacion_0: -2277910073437993711
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

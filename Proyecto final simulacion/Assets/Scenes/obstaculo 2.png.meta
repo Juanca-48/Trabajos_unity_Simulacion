@@ -147,7 +147,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      obstaculo 2_0: 4632243149168264535
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

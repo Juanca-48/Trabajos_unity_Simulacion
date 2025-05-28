@@ -33,6 +33,7 @@ public class SistemaPowerUps : MonoBehaviour
     public bool spawnAlIniciar = true;
     [Tooltip("Máximo número de power-ups activos en el mundo")]
     public int maxPowerUpsEnMundo = 3;
+    
     public class TipoPowerUp
     {
         [Tooltip("Nombre del tipo de power-up")]
@@ -84,13 +85,6 @@ public class SistemaPowerUps : MonoBehaviour
     #region Eventos
     public event Action<string, GameObject> OnPowerUpActivado;
     public event Action<string, GameObject> OnPowerUpFinalizado;
-    [Header("Configuración de Turnos")]
-    [Tooltip("¿Spawneo basado en turnos? Si es false, usa el tiempo")]
-    public bool spawnPorTurnos = true;
-    [Tooltip("Cada cuántos turnos se spawnea un power-up")]
-    public int turnosEntreSpawns = 2;
-    private int contadorTurnos = 0;
-    private bool suscritoATurnos = false;
     #endregion
 
     private void Start()
@@ -243,9 +237,7 @@ public class SistemaPowerUps : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Selecciona un tipo de power-up aleatorio basado en las probabilidades configuradas
-    /// </summary>
+    
     private TipoPowerUp SeleccionarTipoAleatorio()
     {
         if (tiposPowerUp == null || tiposPowerUp.Length == 0)
@@ -800,6 +792,7 @@ public class PowerUpItem : MonoBehaviour, IObjetoColisionable
     /// <summary>
     /// Método opcional para registrar estadísticas o eventos de colisión
     /// </summary>
+
     private void RegistrarColision()
     {
         Debug.Log($"[PowerUp] Power-up {gameObject.name} (Tipo: {tipoPowerUp}) destruido tras colisión con proyectil");
