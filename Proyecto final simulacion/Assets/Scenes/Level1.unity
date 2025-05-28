@@ -436,7 +436,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tipo: 0
-  radio: 1
+  forma: 0
+  radio: 0.8
+  tamanoRectangulo: {x: 2, y: 1}
+  mostrarGizmosEnEditor: 1
+  colorGizmoNormal: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  colorGizmoSuperRebote: {r: 1, g: 0, b: 0, a: 1}
 --- !u!212 &189004822
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -769,6 +774,7 @@ MonoBehaviour:
   textoContador: {fileID: 2008487045}
   ancho: 1.5
   alto: 10
+  nombreJugador: Jugador 1
 --- !u!1 &504425489
 GameObject:
   m_ObjectHideFlags: 0
@@ -796,6 +802,113 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 4, y: -2.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &511662471
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 511662474}
+  - component: {fileID: 511662473}
+  - component: {fileID: 511662472}
+  m_Layer: 0
+  m_Name: obstaculo 3_0
+  m_TagString: Obstaculo
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &511662472
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 511662471}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b93354a7acc335b4a8c3a5687fb822d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tipo: 0
+  forma: 1
+  radio: 1
+  tamanoRectangulo: {x: 1, y: 3}
+  mostrarGizmosEnEditor: 1
+  colorGizmoNormal: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  colorGizmoSuperRebote: {r: 1, g: 0, b: 0, a: 1}
+--- !u!212 &511662473
+SpriteRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 511662471}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_Sprite: {fileID: 2175679049086731528, guid: 8be9889f5de23a84c9568b2af7773f70, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 6.1199994, y: 17.19184}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_MaskInteraction: 0
+  m_SpriteSortPoint: 0
+--- !u!4 &511662474
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 511662471}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -2.82, y: -0.04, z: 0}
+  m_LocalScale: {x: 0.16915, y: 0.16915, z: 0.16915}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -906,7 +1019,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 5.5
+  orthographic size: 5
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -954,6 +1067,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 889887755e55fca469546b07c98fbe8f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  tipoPowerUp: 
+  duracion: 0
 --- !u!1 &546844181
 GameObject:
   m_ObjectHideFlags: 0
@@ -1046,9 +1161,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 350374aa8c76cf045b0db12bf5abe67c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  menuSceneName: menu
-  level1SceneName: Level1
-  enableEscapeKey: 1
 --- !u!1 &576060025
 GameObject:
   m_ObjectHideFlags: 0
@@ -1340,7 +1452,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   masa: 1
-  radio: 1
+  radio: 0.5
 --- !u!1001 &974795417
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1724,7 +1836,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tipo: 1
-  radio: 1
+  forma: 0
+  radio: 0.8
+  tamanoRectangulo: {x: 2, y: 1}
+  mostrarGizmosEnEditor: 1
+  colorGizmoNormal: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  colorGizmoSuperRebote: {r: 1, g: 0, b: 0, a: 1}
 --- !u!212 &1182704918
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -1844,6 +1961,8 @@ MonoBehaviour:
   tagPowerUp: Aumento
   masaPowerUp: 0
   radioPowerUp: 0.5
+  spawnPorTurnos: 1
+  turnosEntreSpawns: 2
 --- !u!4 &1202273983
 Transform:
   m_ObjectHideFlags: 0
@@ -1906,6 +2025,8 @@ MonoBehaviour:
   Bola: {fileID: 874196556}
   posicionInicio: {x: 0, y: 0}
   tiempoEsperaRespawn: 1.5
+  golesParaGanar: 5
+  tiempoEsperaAntesCambioEscena: 3
 --- !u!1 &1354678893
 GameObject:
   m_ObjectHideFlags: 0
@@ -2408,6 +2529,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 889887755e55fca469546b07c98fbe8f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  tipoPowerUp: 
+  duracion: 0
 --- !u!1 &1870132184 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2822679966231809266, guid: 40ffa1a581b9b744ba64c430e9e307f8, type: 3}
@@ -2425,6 +2548,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 889887755e55fca469546b07c98fbe8f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  tipoPowerUp: 
+  duracion: 0
 --- !u!1 &1905348357
 GameObject:
   m_ObjectHideFlags: 0
@@ -2877,6 +3002,7 @@ MonoBehaviour:
   textoContador: {fileID: 1354678895}
   ancho: 1.5
   alto: 10
+  nombreJugador: Jugador 1
 --- !u!1001 &2612997606223300190
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3053,7 +3179,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2797477249207258976, guid: 84bf181985c6c4b4c97d3e01aa2b6394, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 1
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 2797477249207258976, guid: 84bf181985c6c4b4c97d3e01aa2b6394, type: 3}
       propertyPath: m_LocalRotation.w
@@ -3083,8 +3209,7 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 4647374905968548602, guid: 84bf181985c6c4b4c97d3e01aa2b6394, type: 3}
+    m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
@@ -3191,3 +3316,4 @@ SceneRoots:
   - {fileID: 477485418}
   - {fileID: 504425490}
   - {fileID: 2974836007898969628}
+  - {fileID: 511662474}
