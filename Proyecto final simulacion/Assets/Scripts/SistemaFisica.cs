@@ -5,18 +5,19 @@ public class SistemaFisica : MonoBehaviour
 {
     public static SistemaFisica instancia;
 
-    private class DatosObjeto
-    {
-        public Vector2 posicion;
-        public Vector2 velocidad;
-        public float masa;
-        public float radio;
-        public bool afectadoPorGravedad = false;
-        public float coefArrastre = 0.2f;
-        // Nuevos campos para manejar diferentes formas
-        public bool esRectangular = false;
-        public Vector2 tamanoRectangulo = Vector2.zero;
-    }
+private class DatosObjeto
+{
+    public Vector2 posicion;
+    public Vector2 velocidad;
+    public float masa;
+    public float radio;
+    public bool afectadoPorGravedad = false;
+    public float coefArrastre = 0.2f;
+    public bool esRectangular = false;
+    public Vector2 tamanoRectangulo = Vector2.zero;
+    // Nueva propiedad
+    public bool ignorarLimites = false;
+}
 
     private Dictionary<GameObject, DatosObjeto> objetosFisicos = new Dictionary<GameObject, DatosObjeto>();
     private List<GameObject> objetosActivos = new List<GameObject>();
@@ -176,8 +177,9 @@ public class SistemaFisica : MonoBehaviour
     private bool ComprobarColisionesConLimites(ref Vector2 pos, ref Vector2 vel, GameObject obj)
     {
         bool rebotado = false;
-        var datos = objetosFisicos[obj];
-
+         var datos = objetosFisicos[obj];
+        if (datos.ignorarLimites) return false;
+        
         if (datos.esRectangular)
         {
             // Para rectángulos, usar los bordes reales del rectángulo
